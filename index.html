@@ -679,7 +679,7 @@
     let carteInGioco = {};  // key: nomeCarta -> elemento DOM
 
     window.addEventListener("DOMContentLoaded", () => {
-    fetch("https://raw.githubusercontent.com/USERNAME/REPO/BRANCH/CarteArena.json")
+    fetch("CarteArena.json")
         .then(res => res.json())
         .then(data => {
         carteData = data;
@@ -1264,4 +1264,5 @@
   </script>
 </body>
 </html>
+
 
