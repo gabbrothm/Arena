@@ -676,6 +676,16 @@
 
   <!-- ====== Script (integro il tuo script originale e le aggiunte per il libro/notes) ====== -->
   <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      fetch("CarteArena.json")
+        .then(res => res.json())
+        .then(data => {
+          carteData = data;
+          console.log("JSON caricato automaticamente da GitHub.");
+        })
+        .catch(err => console.error("Errore nel fetch del JSON:", err));
+    });
+    
     (function(){
         function initFlip() {
                 const book = document.getElementById('book');
@@ -1265,3 +1275,4 @@
   </script>
 </body>
 </html>
+
