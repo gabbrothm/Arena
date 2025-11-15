@@ -814,26 +814,6 @@
     }
 
     // --- GESTIONE CARTE / JSON ---
-    let carteData = null;   // JSON caricato
-    let carteInGioco = {};  // key: nomeCarta -> elemento DOM
-
-    const fileInputEl = document.getElementById("fileInput");
-    if (fileInputEl) {
-      fileInputEl.addEventListener("change", function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            carteData = JSON.parse(e.target.result);
-            alert("JSON caricato correttamente!");
-          } catch (err) {
-            alert("Errore nel parsing del JSON.");
-          }
-        };
-        reader.readAsText(file);
-      });
-    }
 
     function mostraCarta() {
       if (!carteData) {
@@ -1275,4 +1255,5 @@
   </script>
 </body>
 </html>
+
 
