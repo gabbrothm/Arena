@@ -688,13 +688,7 @@
             carteData = data;
             console.log("JSON caricato automaticamente da GitHub.");
 
-            // Carica tutte le carte disponibili all'avvio
-            const livelli = ["carte liv1", "carte liv2", "carte liv3", "Benedizioni", "Premi"];
-            livelli.forEach(liv => {
-                if (carteData[liv]) {
-                    carteData[liv].forEach(carta => aggiungiCarta(carta, liv));
-                }
-            });
+            console.log("JSON caricato automaticamente da GitHub. Le carte verranno aggiunte solo su richiesta dell'utente.");
         })
         .catch(err => console.error("Errore nel fetch del JSON:", err));
     });
@@ -1067,6 +1061,7 @@
   </script>
 </body>
 </html>
+
 
 
 
