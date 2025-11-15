@@ -1164,12 +1164,104 @@
       }
     });
 
-    // --- avvio all load ---
+    /************************************************************
+    *  SALVATAGGIO AUTOMATICO DI TUTTI GLI INPUT DELLA SCHEDA  *
+    ************************************************************/
+
+    function saveAllInputs() {
+      document.querySelectorAll("input, textarea, select").forEach(el => {
+        const key = "arena_" + el.id;
+        if (!el.id) return;
+
+        if (el.type === "checkbox") {
+          localStorage.setItem(key, el.checked ? "1" : "0");
+        } else {
+          localStorage.setItem(key, el.value);
+        }
+      });
+    }
+
+    function loadAllInputs() {
+      document.querySelectorAll("input, textarea, select").forEach(el => {
+        const key = "arena_" + el.id;
+        if (!el.id) return;
+
+        const saved = localStorage.getItem(key);
+        if (saved === null) return;
+
+        if (el.type === "checkbox") {
+          el.checked = saved === "1";
+        } else {
+          el.value = saved;
+        }
+      });
+    }
+
+    // Salva ogni volta che l'utente modifica qualcosa
+    document.addEventListener("input", saveAllInputs);
+    document.addEventListener("change", saveAllInputs);
+
+    /************************************************************
+    *  SALVATAGGIO DEI CONTATORI COMBO (span numerici)         *
+    ************************************************************/
+
+    function saveComboCounters() {
+      for (const tipo in tipoToCounter) {
+        const id = tipoToCounter[tipo];
+        const span = document.getElementById(id);
+        if (span) {
+          localStorage.setItem("arena_combo_cnt_" + tipo, span.textContent);
+        }
+      }
+    }
+
+    function loadComboCounters() {
+      for (const tipo in tipoToCounter) {
+        const id = tipoToCounter[tipo];
+        const span = document.getElementById(id);
+        const saved = localStorage.getItem("arena_combo_cnt_" + tipo);
+
+        if (span && saved !== null) {
+          span.textContent = saved;
+          aggiornaCombo(tipo, parseInt(saved));
+        }
+      }
+    }
+
+    // Salva combo a ogni incremento/decremento
+    const oldAggiornaContatore = aggiornaContatore;
+    aggiornaContatore = function(tipi, delta) {
+      oldAggiornaContatore(tipi, delta);
+      saveComboCounters();
+    };
+
+    /************************************************************
+    *  SALVATAGGIO DELLA PAGINA ATTIVA (scheda / carte / note) *
+    ************************************************************/
+
+    function saveActivePage(page) {
+      localStorage.setItem("arena_active_page", page);
+    }
+
+    function loadActivePage() {
+      const saved = localStorage.getItem("arena_active_page");
+      if (!saved) return;
+
+      document.querySelectorAll(".sezione").forEach(sec => sec.style.display = "none");
+      document.getElementById(saved).style.display = "block";
+    }
+
+    /************************************************************
+    *  CARICAMENTO COMPLETO ALL’AVVIO                           *
+    ************************************************************/
+
     window.addEventListener("DOMContentLoaded", () => {
+      loadAllInputs();
+      loadComboCounters();
       inizializzaStatistiche();
       inizializzaCombo();
+      loadActivePage();
     });
   </script>
 </body>
 </html>
-
