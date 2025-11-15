@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Scheda D&D Arena - Libro</title>
+
+  <style>
+    /* ===========================
+       Stili originali (invariati)
+       =========================== */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .card {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      text-align: center;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    .stats-saves {
+      display: flex;
+      gap: 30px;
+      margin-top: 20px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* due colonne */
+      gap: 15px;
+      flex: 1;
+    }
+
+    .stat {
+      width: 125px;
+      background: #eee;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      aspect-ratio: 1 / 1;   /* rende i box quadrati */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat label {
+      margin-bottom: 6px;
+    }
+
+    .stat input {
+      width: 80px;          /* più largo */
+      height: 40px;         /* più alto */
+      font-size: 1em;     /* testo più grande */
+      margin: 0 auto;
+      text-align: center;
+      border: 2px solid #aaa;
+      border-radius: 6px;
+    }
+
+    .modifier {
+      font-size: 0.9em;
+      color: #444;
+      margin-top: 5px;
+    }
+
+    .mod_ability{
+      opacity: 0.3;
+    }
+
+    .saves {
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+      flex: 0.6;
+    }
+
+    .combo {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .ability {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .pv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    .pv-current {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .pv-current input[type="number"], .pv-current input[type="text"] {
+      width: 100px;
+      text-align: center;
+    }
+
+    .pv-current button {
+      padding: 5px 10px;
+      font-weight: bold;
+      border: none;
+      background: #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .pv-current button:hover {
+      background: #ccc;
+    }
+
+    .move-pack{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    #carte_area {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); /* due colonne */
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .carta {
+      margin: 0;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 15px;
+      border-radius: 12px;
+      background: #f0f0f0;
+      color: black;
+      font-family: Arial, sans-serif;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border: 2px solid transparent;
+    }
+
+    .carta h3 {
+      text-align: center;
+      margin: 0 0 10px;
+      font-weight: bold;
+    }
+
+    .carta p, .carta small { 
+      color: #000; 
+    }
+
+    .carta .btns { 
+      margin-top: 10px; 
+    }
+
+    .carta button {
+      margin-right: 8px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .carta .btn-potenzia { 
+      background: #4caf50; 
+      color: white; 
+    }
+
+    .carta .btn-scarta { 
+      background: #f44336; 
+      color: white; 
+    }
+
+    .save-msg {
+      text-align: center;
+      font-size: 0.9em;
+      color: green;
+      margin-top: 10px;
+    }
+
+    #startOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);  /* nero semitrasparente */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999; /* sopra tutto */
+      color: white;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+    }
+
+    #startOverlay .overlay-content {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px 50px;
+      border-radius: 12px;
+    }
+
+    /* drop controls (visibili solo in fase drop) */
+    #dropControls { 
+      margin: 10px 0; 
+      text-align: center; 
+    }
+
+    .combo-modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .combo-modal-content {
+        position: relative;
+        background: #fff;
+        color: #000;
+        border-radius: 12px;
+        padding: 20px 25px;
+        width: 320px;
+        max-width: 90%;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        text-align: center;
+        animation: popin 0.25s ease;
+    }
+
+    .combo-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        font-size: 22px;
+        color: #333;
+        cursor: pointer;
+    }
+
+    .note-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 0;
+    }
+
+    #bloccoNote {
+    width: 100%;
+    min-height: 300px;
+    resize: vertical;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .note-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    }
+
+    .note-buttons button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #eee;
+    font-weight: bold;
+    }
+
+    .note-buttons button:hover {
+    background: #ddd;
+    }
+
+    .note-msg {
+    text-align: center;
+    font-size: 0.9rem;
+    color: green;
+    }
+
+    @keyframes popin {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .combo label {
+        cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .stats-saves {
+        flex-direction: column;
+      }
+      .stats {
+        grid-template-columns: repeat(3, 1fr); /* su mobile tre per riga */
+      }
+    }
+
+    /* ===========================
+       Aggiunte: struttura libro + flip 3D
+       =========================== */
+
+    /* contenitore libro */
+    #bookContainer {
+      perspective: 1800px;
+      max-width: 940px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* il "libro" che contiene le tre pagine */
+    #book {
+      width: 100%;
+      position: relative;
+      height: auto;
+      transform-style: preserve-3d;
+      transition: transform 0.9s cubic-bezier(.2,.8,.2,1);
+    }
+
+    /* ciascuna pagina occupa lo spazio e conserva aspetto .card */
+    .page {
+      width: 100%;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+      position: absolute;
+      left: 0;
+      top: 0;
+      padding: 0;
+    }
+
+    /* front (scheda) visibile inizialmente */
+    .page.front { 
+      transform: rotateY(0deg);
+      z-index: 3;
+    }
+
+    /* back (carte) ruotata inizialmente dietro */
+    .page.back {
+      transform: rotateY(180deg);
+      z-index: 2;
+    }
+
+    /* third page (note) posizionata "dietro" */
+    .page.note {
+      transform: rotateY(-180deg);
+      z-index: 1;
+    }
+
+    /* stato "voltato" del libro: ruota il contenitore (effetto flip) */
+    #book.flipped .page.front {
+      transform: rotateY(-180deg);
+      z-index: 1;
+    }
+    #book.flipped .page.back {
+      transform: rotateY(0deg);
+      z-index: 3;
+    }
+
+    /* stato "blocco note": porta in primo piano la .note */
+    #book.flipped-note .page.front,
+    #book.flipped-note .page.back {
+      transform: rotateY(-180deg);
+      z-index: 1;
+    }
+    #book.flipped-note .page.note {
+      transform: rotateY(0deg);
+      z-index: 3;
+    }
+
+    /* nav button in alto a destra - integrati dentro la card */
+    .page .nav {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      z-index: 10;
+    }
+
+    .nav button {
+      background: #ddd;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .nav button:hover { background:#ccc; transform: translateY(-2px); }
+
+    /* assicuriamoci che le card interne siano posizionate correttamente */
+    .page .card {
+      margin: 0; /* dentro la page non serve margin:auto; */
+    }
+
+    /* separazione visiva per la seconda card (leggero offset quando back visibile) */
+    #book.flipped .page.back .card {
+      box-shadow: 0 10px 26px rgba(0,0,0,0.15);
+    }
+
+    /* responsive: rimuove position absolute su mobile per rendere scorrevole in verticale */
+    @media (max-width: 720px) {
+      #book, .page {
+        transform: none !important;
+        position: relative;
+      }
+      .page {
+        position: relative;
+        transform: none !important;
+      }
+      #book.flipped .page.front, #book.flipped .page.back { transform: none !important; }
+      .page .nav { position: relative; top: 0; right: 0; display:flex; justify-content:flex-end; margin-bottom:8px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- overlay originale -->
+  <div id="startOverlay">
+    <div class="overlay-content">
+      <h1>D&D Arena</h1>
+      <div>Un Gioco di Manuel La Leggia</div>
+      <br>
+      <div>Pagina Web a Cura di Gabriele Negro</div>
+    </div>
+  </div>
+
+  <!-- BOOK CONTAINER: tre pagine -->
+  <div id="bookContainer">
+    <div id="book">
+
+      <!-- PAGINA FRONTE: la tua scheda (esattamente come prima) -->
+      <div class="page front" aria-label="Pagina Scheda">
+        <div class="nav">
+          <!-- bottone per andare alla pagina carte -->
+          <button id="toCards" title="Vai alle carte">➡️</button>
+        </div>
+
+        <!-- mantenuto esattamente il markup originale della card -->
+        <div class="card">
+          <h1>Scheda D&D Arena</h1>
+
+          <div class="grid">
+            <div>
+              <label>PV Base</label>
+              <input type="number" id="pv_base" min="1">
+            </div>
+            <div>
+              <label>PV Bonus</label>
+              <input type="number" id="pv_bonus" min="0">
+            </div>
+            <div>
+              <label>PV Attuali</label>
+              <div class="pv-current">
+                <input type="number" id="pv_attuali" min="0">
+                <input type="text" id="pv_delta" placeholder="+N o -N">
+                <button type="button" id="btn_applica_pv" onclick="applyPVDelta()">Applica</button>
+              </div>
+            </div>
+            <div>
+              <label>CA</label>
+              <input type="number" id="ca" max="24">
+            </div>
+            <div>
+              <label>Vel</label>
+              <input type="number" id="vel">
+            </div>
+            <div>
+              <label>BC</label>
+              <input type="number" id="bc">
+            </div>
+            <div>
+              <label>Punti Manuel</label>
+              <input type="number" id="punti_manuel">
+            </div>
+            <div>
+              <label>Punti Leggenda</label>
+              <input type="number" id="punti_leggenda">
+            </div>
+            <div>
+              <label>Azioni - Azioni Bonus - Reazioni</label>
+              <div class="move-pack">
+                  <input type="number" id="azioni">
+                  <input type="number" id="azioni_bonus">
+                  <input type="number" id="reazioni">
+              </div>
+            </div>
+          </div>
+
+          <h2>Statistiche e Tiri Salvezza</h2>
+          <div class="stats-saves">
+            <div class="stats">
+              <div class="stat">
+                <label>For</label>
+                <input type="number" id="for" min="1" max="30">
+                <div class="modifier" id="mod_for">+0</div>
+              </div>
+              <div class="stat">
+                <label>Des</label>
+                <input type="number" id="des" min="1" max="30">
+                <div class="modifier" id="mod_des">+0</div>
+              </div>
+              <div class="stat">
+                <label>Cos</label>
+                <input type="number" id="cos" min="1" max="30">
+                <div class="modifier" id="mod_cos">+0</div>
+              </div>
+              <div class="stat">
+                <label>Int</label>
+                <input type="number" id="int" min="1" max="30">
+                <div class="modifier" id="mod_int">+0</div>
+              </div>
+              <div class="stat">
+                <label>Sag</label>
+                <input type="number" id="sag" min="1" max="30">
+                <div class="modifier" id="mod_sag">+0</div>
+              </div>
+              <div class="stat">
+                <label>Car</label>
+                <input type="number" id="car" min="1" max="30">
+                <div class="modifier" id="mod_car">+0</div>
+              </div>
+            </div>
+
+            <div class="saves">
+              <label><input type="checkbox" id="ts_for"> For</label>
+              <label><input type="checkbox" id="ts_des"> Des</label>
+              <label><input type="checkbox" id="ts_cos"> Cos</label>
+              <label><input type="checkbox" id="ts_int"> Int</label>
+              <label><input type="checkbox" id="ts_sag"> Sag</label>
+              <label><input type="checkbox" id="ts_car"> Car</label>
+            </div>
+          </div>
+
+          <h2>Combo</h2>
+          <div class="combo">
+            <label><input type="checkbox" id="combo_razza"> Razza (<span id="combo_razza_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_classe"> Classe (<span id="combo_classe_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_eqarmi"> Equip: Armi (<span id="combo_eqarmi_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_talenti"> Talenti (<span id="combo_talenti_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_eqarmature"> Equip: Armature (<span id="combo_eqarmature_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_eqaltro"> Equip: Altro (<span id="combo_eqaltro_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_incantesimi"> Incantesimi (<span id="combo_incantesimi_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_companion"> Companion (<span id="combo_companion_count">0</span>)</label>
+            <label><input type="checkbox" id="combo_divinità"> Divinità (<span id="combo_divinità_count">0</span>)</label>
+          </div>
+
+          <h2>Abilità</h2>
+          <div class="ability">
+              <label><input type="checkbox" id="ability_acrobazia" class="abilita"> Acrobazia <span class="mod_ability">(Des)</span></label>
+              <label><input type="checkbox" id="ability_addaAnimali" class="abilita"> Addrestare Animali <span class="mod_ability">(Sag)</span></label>
+              <label><input type="checkbox" id="ability_arcano" class="abilita"> Arcano <span class="mod_ability">(Int)</span></label>
+              <label><input type="checkbox" id="ability_atletica" class="abilita"> Atletica <span class="mod_ability">(For)</span></label>
+              <label><input type="checkbox" id="ability_furtività" class="abilita"> Furtività <span class="mod_ability">(Des)</span></label>
+              <label><input type="checkbox" id="ability_indagare" class="abilita"> Indagare <span class="mod_ability">(Int)</span></label>
+              <label><input type="checkbox" id="ability_inganno" class="abilita"> Inganno <span class="mod_ability">(Car)</span></label>
+              <label><input type="checkbox" id="ability_intimidire" class="abilita"> Intimidire <span class="mod_ability">(Car)</span></label>
+              <label><input type="checkbox" id="ability_intrattenere" class="abilita"> Intrattenere <span class="mod_ability">(Car)</span></label>
+              <label><input type="checkbox" id="ability_Intuizione" class="abilita"> Intuizione <span class="mod_ability">(Sag)</span></label>
+              <label><input type="checkbox" id="ability_medicina" class="abilita"> Medicina <span class="mod_ability">(Sag)</span></label>
+              <label><input type="checkbox" id="ability_natura" class="abilita"> Natura <span class="mod_ability">(Int)</span></label>
+              <label><input type="checkbox" id="ability_percezione" class="abilita"> Percezione <span class="mod_ability">(Sag)</span></label>
+              <label><input type="checkbox" id="ability_persuasione" class="abilita"> Persuasione <span class="mod_ability">(Car)</span></label>
+              <label><input type="checkbox" id="ability_rapiditàDiMano" class="abilita"> Rapidità di Mano <span class="mod_ability">(Des)</span></label>
+              <label><input type="checkbox" id="ability_religione" class="abilita"> Religione <span class="mod_ability">(Int)</span></label>
+              <label><input type="checkbox" id="ability_sopravvivenza" class="abilita"> Sopravvivenza <span class="mod_ability">(Sag)</span></label>
+              <label><input type="checkbox" id="ability_storia" class="abilita"> Storia <span class="mod_ability">(Int)</span></label>
+          </div>
+
+          <!-- Niente sezione carte qui: la lasciamo nella pagina back -->
+        </div>
+      </div>
+
+      <!-- PAGINA RETRO: stessa card-stile ma contiene la sezione Carte identica all'originale -->
+      <div class="page back" aria-label="Pagina Carte">
+        <div class="nav">
+          <!-- bottone per tornare alla scheda -->
+          <button id="toScheda" title="Torna alla scheda">⬅️</button>
+          <button id="toNote" title="Vai al blocco note">📝</button>
+        </div>
+
+        <div class="card">
+          <h1>Carte</h1>
+
+          <div class="carte-section">
+            <input type="file" id="fileInput" accept="application/json"><br><br>
+            <input type="text" id="carta_input" placeholder="Inserisci nome carta">
+            <button onclick="mostraCarta()">Cerca</button>
+          </div>
+
+          <div id="carte_area"></div>
+        </div>
+      </div>
+
+      <!-- PAGINA 3: BLOCCO NOTE (all'interno del book così partecipa al flip) -->
+      <div class="page note" aria-label="Pagina Note">
+        <div class="nav">
+          <button id="toCarte" title="Torna alle carte">⬅️</button>
+          <button id="toSchedaFromNote" title="Torna alla scheda">🏠</button>
+        </div>
+
+        <div class="card">
+            <h1>Blocco Note</h1>
+            <div class="note-container">
+              <textarea id="bloccoNote" placeholder="Scrivi qui appunti, idee o note di gioco..."></textarea>
+              <div class="note-buttons">
+                <button id="salvaNote">💾 Salva Note</button>
+                <button id="cancellaNote">🗑️ Cancella</button>
+              </div>
+              <p class="note-msg" id="noteMsg"></p>
+            </div>
+        </div>
+      </div>
+
+    </div> <!-- #book -->
+  </div> <!-- #bookContainer -->
+
+    <div id="comboModal" class="combo-modal">
+        <div class="combo-modal-content">
+            <span id="comboModalClose" class="combo-close">&times;</span>
+            <h3 id="comboModalTitle"></h3>
+            <p id="comboModalText"></p>
+        </div>
+    </div>
+
+  <!-- ====== Script (integro il tuo script originale e le aggiunte per il libro/notes) ====== -->
+  <script>
+    (function(){
+        function initFlip() {
+                const book = document.getElementById('book');
+                const toCards = document.getElementById('toCards');          // scheda → carte
+                const toScheda = document.getElementById('toScheda');        // carte → scheda
+                const toNote = document.getElementById('toNote');            // carte → note
+                const toCarte = document.getElementById('toCarte');          // note → carte
+                const toSchedaFromNote = document.getElementById('toSchedaFromNote'); // note → scheda
+
+                if (!book) return;
+
+                // scheda → carte
+                if (toCards) {
+                toCards.addEventListener('click', () => {
+                    book.classList.remove('flipped-note');
+                    book.classList.add('flipped');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                }
+
+                // carte → scheda
+                if (toScheda) {
+                toScheda.addEventListener('click', () => {
+                    book.classList.remove('flipped');
+                    book.classList.remove('flipped-note');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                }
+
+                // carte → note
+                if (toNote) {
+                toNote.addEventListener('click', () => {
+                    book.classList.remove('flipped');
+                    // assicurati di ripristinare stato prima di aggiungere la nuova classe
+                    book.classList.remove('flipped-note');
+                    void book.offsetWidth; // forzo reflow per transizione pulita
+                    book.classList.add('flipped-note');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                }
+
+                // note → carte
+                if (toCarte) {
+                toCarte.addEventListener('click', () => {
+                    book.classList.remove('flipped-note');
+                    book.classList.add('flipped');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                }
+
+                // note → scheda
+                if (toSchedaFromNote) {
+                toSchedaFromNote.addEventListener('click', () => {
+                    book.classList.remove('flipped');
+                    book.classList.remove('flipped-note');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                }
+
+                // ESC per tornare sempre alla scheda
+                window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    book.classList.remove('flipped');
+                    book.classList.remove('flipped-note');
+                }
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initFlip);
+            } else {
+                initFlip();
+            }
+        })();
+
+        // Nasconde l'overlay al primo click sulla pagina
+        window.addEventListener("DOMContentLoaded", () => {
+            const overlay = document.getElementById("startOverlay");
+            if (overlay) {
+                overlay.addEventListener("click", () => {
+                overlay.style.display = "none";
+                });
+            }
+    });
+
+    // --- PV ---
+    function applyPVDelta() {
+      const pvAttualiInput = document.getElementById("pv_attuali");
+      const pvDeltaInput = document.getElementById("pv_delta");
+
+      let pvAttuali = parseInt(pvAttualiInput.value) || 0;
+      let delta = parseInt(pvDeltaInput.value) || 0;
+
+      let nuovoValore = pvAttuali + delta;
+      if (nuovoValore < 0) nuovoValore = 0;
+
+      pvAttualiInput.value = nuovoValore;
+      pvDeltaInput.value = "";
+    }
+
+    // --- MODIFICATORI STATISTICHE ---
+    function calcolaModificatore(valore) {
+      if (!valore) return 0;
+      return Math.floor((valore - 10) / 2);
+    }
+
+    function aggiornaMod(statId, modId) {
+      const valore = parseInt(document.getElementById(statId).value) || 0;
+      const mod = calcolaModificatore(valore);
+      const simbolo = mod >= 0 ? "+" : "";
+      document.getElementById(modId).textContent = simbolo + mod;
+    }
+
+    function inizializzaStatistiche() {
+      const stats = ["for", "des", "cos", "int", "sag", "car"];
+      stats.forEach(stat => {
+        const input = document.getElementById(stat);
+        const modId = "mod_" + stat;
+        if (input) {
+          input.addEventListener("input", () => aggiornaMod(stat, modId));
+        }
+        // update initial value if present (guardiamo se esiste l'elemento)
+        const el = document.getElementById(modId);
+        if (el) aggiornaMod(stat, modId);
+      });
+    }
+
+    // --- GESTIONE CARTE / JSON ---
+    let carteData = null;   // JSON caricato
+    let carteInGioco = {};  // key: nomeCarta -> elemento DOM
+
+    const fileInputEl = document.getElementById("fileInput");
+    if (fileInputEl) {
+      fileInputEl.addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            carteData = JSON.parse(e.target.result);
+            alert("JSON caricato correttamente!");
+          } catch (err) {
+            alert("Errore nel parsing del JSON.");
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    function mostraCarta() {
+      if (!carteData) {
+        alert("Prima carica un file JSON!");
+        return;
+      }
+
+      const nomeInput = document.getElementById("carta_input").value.trim().toLowerCase();
+      if (!nomeInput) return;
+
+      let cartaTrovata = null;
+      let livello = null;
+
+      // cerca nei tre livelli principali
+      ["carte liv1", "carte liv2", "carte liv3"].forEach(liv => {
+        if (cartaTrovata) return;
+        const found = (carteData[liv] || []).find(
+          c => (c.nome || "").toLowerCase() === nomeInput
+        );
+        if (found) {
+          cartaTrovata = found;
+          livello = liv;
+        }
+      });
+
+      // se non trovata, prova in Benedizioni e Premi (carte speciali)
+      if (!cartaTrovata) {
+        ["Benedizioni", "Premi"].forEach(liv => {
+          if (cartaTrovata) return;
+          const found = (carteData[liv] || []).find(
+            c => (c.nome || "").toLowerCase() === nomeInput
+          );
+          if (found) {
+            cartaTrovata = found;
+            livello = liv;
+          }
+        });
+      }
+
+      // se ancora nulla, messaggio d'errore
+      if (!cartaTrovata) {
+        alert("Carta non trovata!");
+        return;
+      }
+
+      aggiungiCarta(cartaTrovata, livello);
+    }
+
+    // mappa tipo -> id span contatore
+    const tipoToCounter = {
+      "Razza": "combo_razza_count",
+      "Classe": "combo_classe_count",
+      "Equip: Armi": "combo_eqarmi_count",
+      "Talento": "combo_talenti_count",
+      "Talenti": "combo_talenti_count",
+      "Equip: Armature": "combo_eqarmature_count",
+      "Equip: Altro": "combo_eqaltro_count",
+      "Incantesimo": "combo_incantesimi_count",
+      "Incantesimi": "combo_incantesimi_count",
+      "Companion": "combo_companion_count",
+      "Divinità": "combo_divinità_count"
+    };
+
+    // mappa tipo -> id checkbox (usata per spuntare/disabilitare e colorare)
+    const tipoToCheckbox = {
+      "Razza": "combo_razza",
+      "Classe": "combo_classe",
+      "Equip: Armi": "combo_eqarmi",
+      "Talento": "combo_talenti",
+      "Talenti": "combo_talenti",
+      "Equip: Armature": "combo_eqarmature",
+      "Equip: Altro": "combo_eqaltro",
+      "Incantesimo": "combo_incantesimi",
+      "Incantesimi": "combo_incantesimi",
+      "Companion": "combo_companion",
+      "Divinità": "combo_divinità"
+    };
+
+    // configurazione soglie per stadi (come richiesto)
+    const comboThresholds = {
+      "Razza": [3, 5], 
+      "Classe": [2, 4, 6],
+      "Equip: Armi": [3, 6],
+      "Talento": [3],
+      "Talenti": [3],
+      "Equip: Armature": [2, 4, 6],
+      "Equip: Altro": [2, 5],
+      "Incantesimo": [5],
+      "Incantesimi": [5],
+      "Companion": [3, 6],
+      "Divinità": [2, 4, 6]
+    };
+
+    // stato precedente degli stadi per poter avvisare solo quando si sale di stadio
+    let comboState = {};
+
+    function aggiungiCarta(carta, livello) {
+      const container = document.getElementById("carte_area");
+      if (!container) return;
+      if (carteInGioco[carta.nome]) return; // evita duplicati
+
+      const div = document.createElement("div");
+      div.className = "carta";
+      div.setAttribute("data-livello", livello);
+      div.setAttribute("data-nome", carta.nome);
+
+      // salva tipi in dataset per poterli usare a scarto o potenziamento (normalizza a array)
+      const tipi = Array.isArray(carta.tipo) ? carta.tipo : (carta.tipo ? [carta.tipo] : []);
+      div.dataset.tipi = JSON.stringify(tipi);
+
+      // bordo in base al livello
+      let coloreBordo = "transparent";
+      if (livello === "carte liv1") coloreBordo = "blue";
+      if (livello === "carte liv2") coloreBordo = "orange";
+      if (livello === "carte liv3") coloreBordo = "purple";
+      if (livello === "Benedizioni") coloreBordo = "green";
+      if (livello === "Premi") coloreBordo = "red";
+      div.style.borderColor = coloreBordo;
+
+      const tipoTesto = tipi.length ? tipi.join(", ") : "N/D";
+
+      div.innerHTML = `
+        <h3>${carta.nome}</h3>
+        <div class="tipo"><strong>Tipo:</strong> ${tipoTesto}</div>
+        <div class="descr">${carta.descrizione || ""}</div>
+        <div class="btns">
+          <button class="btn-potenzia">Potenzia</button>
+          <button class="btn-scarta">Scarta</button>
+        </div>
+      `;
+
+      div.querySelector(".btn-potenzia").addEventListener("click", () => potenziaCarta(carta.nome));
+      div.querySelector(".btn-scarta").addEventListener("click", () => scartaCarta(carta.nome));
+
+      container.appendChild(div);
+      carteInGioco[carta.nome] = div;
+
+      // aggiorna contatori per i tipi della carta (incremento)
+      aggiornaContatore(tipi, +1);
+    }
+
+    function potenziaCarta(nome) {
+      const div = carteInGioco[nome];
+      if (!div) return;
+
+      const livelloAttuale = div.getAttribute("data-livello");
+      let prossimoLivello = null;
+
+      if (livelloAttuale === "carte liv1") prossimoLivello = "carte liv2";
+      if (livelloAttuale === "carte liv2") prossimoLivello = "carte liv3";
+
+      if (!prossimoLivello) {
+        alert("Questa carta è già al livello massimo!");
+        return;
+      }
+
+      // ricerca case-insensitive della versione successiva
+      const cartaSuccessiva = (carteData[prossimoLivello] || []).find(c => (c.nome || "").toLowerCase() === (nome || "").toLowerCase());
+      if (!cartaSuccessiva) {
+        alert("Non esiste una versione superiore di questa carta!");
+        return;
+      }
+
+      // aggiorna contatori se i tipi cambiano: decremento tipi vecchi, incremento nuovi
+      const tipiVecchi = JSON.parse(div.dataset.tipi || "[]");
+      const tipiNuovi = Array.isArray(cartaSuccessiva.tipo) ? cartaSuccessiva.tipo : (cartaSuccessiva.tipo ? [cartaSuccessiva.tipo] : []);
+
+      // se i tipi sono diversi, aggiorna contatori
+      // (decrementiamo prima, poi incrementiamo)
+      aggiornaContatore(tipiVecchi, -1);
+      aggiornaContatore(tipiNuovi, +1);
+
+      // salva nuovi tipi
+      div.dataset.tipi = JSON.stringify(tipiNuovi);
+
+      // aggiorna livello e testi
+      div.setAttribute("data-livello", prossimoLivello);
+
+      const pTipo = div.querySelector("div.tipo");
+      const pDesc = div.querySelector("div.descr");
+      if (pTipo) pTipo.innerHTML = `<strong>Tipo:</strong> ${tipiNuovi.length ? tipiNuovi.join(", ") : "N/D"}`;
+      if (pDesc) {
+        pDesc.textContent = "";
+        pDesc.innerHTML = cartaSuccessiva.descrizione || "";
+      }
+      // aggiorna colore bordo
+      let coloreBordo = "transparent";
+      if (prossimoLivello === "carte liv2") coloreBordo = "orange";
+      if (prossimoLivello === "carte liv3") coloreBordo = "purple";
+      div.style.borderColor = coloreBordo;
+    }
+
+    function scartaCarta(nome) {
+      const div = carteInGioco[nome];
+      if (div) {
+        // decrementa i contatori basandosi sui tipi salvati nel dataset
+        const tipi = JSON.parse(div.dataset.tipi || "[]");
+        aggiornaContatore(tipi, -1);
+
+        div.remove();
+        delete carteInGioco[nome];
+      }
+    }
+
+    // --- AGGIORNAMENTO CONTATORI E COMBO ---
+    function aggiornaContatore(tipi, delta) {
+      if (!Array.isArray(tipi)) tipi = [tipi];
+      tipi.forEach(tipo => {
+        if (!tipo) return;
+        const idSpan = tipoToCounter[tipo];
+        if (idSpan) {
+          const span = document.getElementById(idSpan);
+          if (!span) return;
+          let valore = parseInt(span.textContent) || 0;
+          valore += delta;
+          if (valore < 0) valore = 0;
+          span.textContent = valore;
+          aggiornaCombo(tipo, valore);
+        }
+      });
+    }
+
+    // inizializza combo (disabilita checkboxes e stato iniziale)
+    function inizializzaCombo() {
+      for (const tipo in tipoToCheckbox) {
+        const cbId = tipoToCheckbox[tipo];
+        const checkbox = document.getElementById(cbId);
+        if (checkbox) {
+          checkbox.disabled = true; // l'utente non può cliccarle
+          const label = checkbox.parentElement;
+          if (label) label.style.backgroundColor = "";
+        }
+        comboState[tipo] = 0;
+        // assicurati che lo span esista e sia inizializzato
+        const spanId = tipoToCounter[tipo];
+        const span = document.getElementById(spanId);
+        if (span && !span.textContent) span.textContent = "0";
+      }
+    }
+
+    // aggiorna lo stato di una singola combo in base al valore
+    function aggiornaCombo(tipo, valore) {
+      const checkboxId = tipoToCheckbox[tipo];
+      const checkbox = checkboxId ? document.getElementById(checkboxId) : null;
+      const label = checkbox ? checkbox.parentElement : null;
+      const soglie = comboThresholds[tipo] || [];
+
+      // calcola lo stadio corrente (0 = niente, 1 = primo stadio, ecc.)
+      let stadio = 0;
+      for (let i = 0; i < soglie.length; i++) {
+        if (valore >= soglie[i]) stadio = i + 1;
+      }
+
+      // la checkbox viene SPUNTATA SOLO se si è raggiunto almeno il primo stadio
+      if (checkbox) checkbox.checked = (stadio >= 1);
+
+      // colore sfondo label in base allo stadio
+      if (label) {
+        label.style.backgroundColor = "";
+        if (stadio === 1) label.style.backgroundColor = "lightgreen";
+        else if (stadio === 2) label.style.backgroundColor = "yellow";
+        else if (stadio === 3) label.style.backgroundColor = "lightcoral";
+      }
+
+      // alert: solo quando si sale di stadio (stadio > precedente)
+      const precedente = comboState[tipo] || 0;
+      if (stadio > precedente) {
+        alert(`Hai raggiunto lo stadio ${stadio} della combo: ${tipo}!`);
+      }
+      comboState[tipo] = stadio;
+    }
+
+     const comboDescriptions = {
+        "combo_razza": "3) Competenza in 2 Abilità a Scelta 5) Competenza in 2 TS a scelta",
+        "combo_classe": "2) Ottieni +1 in tutte le Stats 4) Hai 2 Azioni bonus a turno 6) Hai 2 reazioni a turno",
+        "combo_eqarmi": "3) Le armi diventano magiche al fine di superare resistenze e immunità 6) Ottieni un Azione Extra",
+        "combo_talenti": "3) Ottieni +2 al Bonus competenza",
+        "combo_eqarmature": "2) Ottieni +2 CA 4) Se il bersaglio fa un tiro per colpire con risultato pari a 15 o minore ottieni un attacco di opportunità a patto che la tua CA sia superiore a 15 6) Se il bersaglio fa un tiro per colpire e non ti colpisce gli infliggi 3d10 danni",
+        "combo_eqaltro": "2) Ottieni maestria in un'abilità 5) le abilità con maestria hanno successo in automatico",
+        "combo_incantesimi": "5) Puoi mutare il tipo di danno degli incantesimi",
+        "combo_companion": "3) i companion ottengono +15pv e un azione extra 6) Se ricevi un attacco mortale puoi sacrificare un companion per rimanere a 1pf",
+        "combo_divinità": "2) Inizi ogni combattimento con 10pf temporanei 4) Inizi ogni combattimento con 15pf temporanei 6) Inizi ogni turno con 15pf temporanei"
+    };
+
+    // popup combo: prendi gli elementi **dopo** che il DOM è pronto
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById("comboModal");
+      const modalTitle = document.getElementById("comboModalTitle");
+      const modalText = document.getElementById("comboModalText");
+      const closeBtn = document.getElementById("comboModalClose");
+
+      // Quando clicchi sull'etichetta (label) della combo → apre la finestra
+      document.querySelectorAll(".combo label").forEach(label => {
+          label.addEventListener("click", () => {
+            const input = label.querySelector("input");
+            if (!input) return;
+            const id = input.id;
+            if (comboDescriptions[id]) {
+                modalTitle.textContent = label.textContent.trim();
+                modalText.textContent = comboDescriptions[id];
+                modal.style.display = "flex";
+            }
+          });
+      });
+
+      // Chiudi la finestra
+      closeBtn.addEventListener("click", () => modal.style.display = "none");
+      modal.addEventListener("click", e => {
+          if (e.target === modal) modal.style.display = "none";
+      });
+    });
+
+    // --- BLOCCO NOTE ---
+    document.addEventListener('DOMContentLoaded', () => {
+      const noteArea = document.getElementById("bloccoNote");
+      const salvaBtn = document.getElementById("salvaNote");
+      const cancellaBtn = document.getElementById("cancellaNote");
+      const noteMsg = document.getElementById("noteMsg");
+
+      if (noteArea) {
+        const saved = localStorage.getItem("bloccoNoteArena");
+        if (saved) noteArea.value = saved;
+
+        salvaBtn.addEventListener("click", () => {
+          localStorage.setItem("bloccoNoteArena", noteArea.value);
+          noteMsg.textContent = "✅ Note salvate!";
+          setTimeout(() => noteMsg.textContent = "", 2000);
+        });
+
+        cancellaBtn.addEventListener("click", () => {
+          if (confirm("Vuoi davvero cancellare tutte le note?")) {
+            noteArea.value = "";
+            localStorage.removeItem("bloccoNoteArena");
+            noteMsg.textContent = "🗑️ Note cancellate.";
+            setTimeout(() => noteMsg.textContent = "", 2000);
+          }
+        });
+      }
+    });
+
+    // --- avvio all load ---
+    window.addEventListener("DOMContentLoaded", () => {
+      inizializzaStatistiche();
+      inizializzaCombo();
+    });
+  </script>
+</body>
+</html>

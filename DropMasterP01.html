@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Deck D&D Arena</title>
+  <style>
+    body {
+      font-family: 'Cinzel Decorative', serif;
+      background: radial-gradient(circle at top, #1a1a1a, #000);
+      color: #eee;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: gold;
+      text-shadow: 0 0 10px blue;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #4a1, #8c2);
+      color: white;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: scale(1.1); }
+
+    #modeButtons {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mode-btn {
+      font-size: 14px;
+      padding: 6px 12px;
+      background: #333;
+      border: 1px solid gold;
+      border-radius: 8px;
+      color: gold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mode-btn.active {
+      background: gold;
+      color: black;
+      box-shadow: 0 0 10px gold;
+    }
+
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      width: 200px;
+      height: 300px;
+      perspective: 1000px;
+      cursor: grab;
+      transform: translateY(-500px);
+      opacity: 0;
+      transition: transform 0.7s ease, opacity 0.7s ease;
+    }
+
+    .card.drop {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s;
+      transform-style: preserve-3d;
+      transform: rotateY(180deg);
+    }
+
+    .card.flip .card-inner {
+      transform: rotateY(0deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255,215,0,0.6);
+    }
+
+    .card-front {
+      background: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      font-size: 16px;
+      color: white;
+      border: 2px solid blue;
+      padding: 10px;
+    }
+
+    .card-back {
+      background: #333;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transform: rotateY(180deg);
+      text-align: center;
+      border: 2px solid blue;
+    }
+
+    .card.fade-out {
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    #chosen {
+      margin-top: 40px;
+    }
+
+    .player-box {
+      border: 2px solid gold;
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 150px;
+      min-height: 150px;
+      background: #222;
+    }
+
+    .cardsInside {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 50px;
+    }
+
+    .chosen-card {
+      background: #222;
+      padding: 8px;
+      border: 2px solid #007BFF;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #007BFF;
+      cursor: pointer;
+      transition: transform 0.5s, opacity 0.5s, border-color 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      transform: translateY(-20px) scale(0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chosen-card.enter {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .chosen-card.orange {
+      border-color: orange;
+      box-shadow: 0 0 10px orange;
+    }
+
+    .chosen-card.purple {
+      border-color: violet;
+      box-shadow: 0 0 10px violet;
+    }
+
+    .color-btn {
+      background: transparent;
+      border: none;
+      color: gold;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .color-btn:hover {
+      transform: scale(1.3);
+      color: #ffcc66;
+    }
+  </style>
+</head>
+<body>
+  <h1> 🧙🏻‍♂ Master Drop 🧙🏻‍♂</h1>
+
+  <button id="dropBtn" onclick="dropCards()">Drop</button>
+
+  <div id="modeButtons">
+    <button class="mode-btn active" id="btn-liv1" onclick="setMode('liv1')">Livello 1</button>
+    <button class="mode-btn" id="btn-benedizioni" onclick="setMode('benedizioni')">Benedizioni</button>
+    <button class="mode-btn" id="btn-premi" onclick="setMode('premi')">Premi</button>
+    <button class="mode-btn" id="btn-sussurro" onclick="setMode('sussurro')">Sussurro</button>
+  </div>
+
+  <div id="cards" class="cards-container"></div>
+  
+  <div id="chosen">
+    <h2>Carte Giocatori</h2>
+  </div>
+
+  <input type="file" id="jsonFile" accept=".json" onchange="loadJsonFile(event)">
+
+  <audio id="soundDrop" src="sounds/drop.mp3" preload="auto"></audio>
+  <audio id="soundFlip" src="sounds/flip.mp3" preload="auto"></audio>
+  <audio id="soundPick" src="sounds/pick.mp3" preload="auto"></audio>
+
+  <script>
+    let cardsData = {};
+    let players = [];
+    let currentMode = localStorage.getItem("modalitaAttiva") || "liv1"; // modalità salvata
+
+    function setMode(mode) {
+      currentMode = mode;
+      localStorage.setItem("modalitaAttiva", mode);
+      document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`btn-${mode}`).classList.add("active");
+      console.log("Modalità attiva:", mode);
+    }
+
+    window.onload = function() {
+      // imposta il pulsante attivo alla riapertura
+      document.querySelectorAll(".mode-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`btn-${currentMode}`).classList.add("active");
+
+      let numPlayers = parseInt(prompt("Quanti giocatori partecipano?"));
+      if (isNaN(numPlayers) || numPlayers < 1) numPlayers = 1;
+
+      for (let i = 0; i < numPlayers; i++) {
+        let name = prompt(`Nome del giocatore ${i + 1}:`);
+        if (!name) name = `Giocatore ${i + 1}`;
+        players.push(name);
+      }
+
+      renderPlayerBoxes();
+    }
+
+    function playSound(id) {
+      const sound = document.getElementById(id);
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play();
+      }
+    }
+
+    function loadJsonFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const inputEl = document.getElementById("jsonFile");
+      inputEl.style.transition = "opacity 0.5s ease";
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const json = JSON.parse(e.target.result);
+          cardsData = {
+            liv1: json["carte liv1"]?.map(c => ({ ...c, assigned: false })) || [],
+            benedizioni: json["Benedizioni"]?.map(c => ({ ...c, assigned: false })) || [],
+            premi: json["Premi"]?.map(c => ({ ...c, assigned: false })) || []
+          };
+
+          alert(`✔️ File caricato con successo!
+Carte liv1: ${cardsData.liv1.length}
+Benedizioni: ${cardsData.benedizioni.length}
+Premi: ${cardsData.premi.length}`);
+
+          inputEl.style.opacity = "0";
+          setTimeout(() => inputEl.style.display = "none", 500);
+
+        } catch (err) {
+          alert("❌ Errore nel parsing del file JSON!");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderPlayerBoxes() {
+      const container = document.getElementById("chosen");
+      const boxesContainer = document.createElement("div");
+      boxesContainer.id = "playerBoxes";
+      boxesContainer.style.display = "flex";
+      boxesContainer.style.justifyContent = "center";
+      boxesContainer.style.gap = "20px";
+      boxesContainer.style.marginTop = "20px";
+
+      players.forEach(name => {
+        const div = document.createElement("div");
+        div.className = "player-box";
+        div.innerHTML = `<h3>${name}</h3><div class="cardsInside"></div>`;
+
+        div.addEventListener("dragover", e => e.preventDefault());
+        div.addEventListener("drop", e => {
+          e.preventDefault();
+          playSound("soundPick");
+
+          const cardId = e.dataTransfer.getData("text/plain");
+          const draggedCard = document.getElementById(cardId);
+          const realIndex = draggedCard.dataset.realIndex;
+          const cardSet = currentMode === "benedizioni" ? "benedizioni"
+                            : currentMode === "premi" ? "premi"
+                            : "liv1";
+
+          const cardObj = cardsData[cardSet][realIndex];
+
+          document.querySelectorAll(".card").forEach(c => {
+            if (c.id !== cardId) {
+              c.classList.add("fade-out");
+              setTimeout(() => c.remove(), 500);
+            }
+          });
+
+          draggedCard.remove();
+
+          const cardNameDiv = document.createElement("div");
+          cardNameDiv.className = "chosen-card";
+          cardNameDiv.innerHTML = `
+            <span>${cardObj.nome}</span>
+            <button class="color-btn" title="Cambia colore" onclick="event.stopPropagation(); changeCardColor(this)">🔼</button>
+          `;
+
+          setTimeout(() => cardNameDiv.classList.add("enter"), 10);
+
+          cardNameDiv.addEventListener("click", () => {
+            cardNameDiv.style.transform = "rotateY(180deg) scale(0)";
+            cardNameDiv.style.opacity = "0";
+            setTimeout(() => {
+              cardObj.assigned = false;
+              cardNameDiv.remove();
+            }, 500);
+          });
+
+          div.querySelector(".cardsInside").appendChild(cardNameDiv);
+          cardObj.assigned = true;
+        });
+
+        boxesContainer.appendChild(div);
+      });
+
+      container.appendChild(boxesContainer);
+    }
+
+    function changeCardColor(button) {
+      const card = button.parentElement;
+      if (card.classList.contains("orange")) {
+        card.classList.remove("orange");
+        card.classList.add("purple");
+      } else if (card.classList.contains("purple")) {
+        card.classList.remove("purple");
+      } else {
+        card.classList.add("orange");
+      }
+    }
+
+    function dropCards() {
+      let available = [];
+      let numCards = 3; // di default 3 carte
+
+      if (currentMode === "liv1") {
+          available = cardsData.liv1.filter(c => !c.assigned);
+      } else if (currentMode === "benedizioni") {
+          available = cardsData.benedizioni.filter(c => !c.assigned);
+          numCards = 1;
+      } else if (currentMode === "premi") {
+          available = cardsData.premi.filter(c => !c.assigned);
+          numCards = 1;
+      } else if (currentMode === "sussurro") {
+          const tipoRichiesto = prompt("Inserisci il tipo di carta da estrarre:");
+          if (!tipoRichiesto) return;
+          available = cardsData.liv1.filter(c =>
+              (Array.isArray(c.tipo) && c.tipo.includes(tipoRichiesto)) ||
+              c.tipo === tipoRichiesto
+          );
+      }
+
+      if (available.length < numCards) {
+          alert("❌ Non ci sono abbastanza carte disponibili!");
+          return;
+      }
+
+      const selected = [];
+      const cardSet = currentMode === "benedizioni" ? "benedizioni"
+                    : currentMode === "premi" ? "premi"
+                    : "liv1";
+
+      while (selected.length < numCards) {
+          const card = available[Math.floor(Math.random() * available.length)];
+          if (!selected.includes(card)) {
+
+              // 🔥 Salvo l’indice reale nel mazzo giusto
+              card.realIndex = cardsData[cardSet].indexOf(card);
+
+              selected.push(card);
+          }
+      }
+
+      renderDrop(selected);
+    }
+
+    function renderDrop(cards) {
+      const container = document.getElementById("cards");
+      container.innerHTML = "";
+
+      cards.forEach((card, idx) => {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.id = `card-${idx}`;
+          div.draggable = true;
+
+          // 🔥 salvo l’indice reale dentro l’elemento
+          div.dataset.realIndex = card.realIndex;
+
+          div.innerHTML = `
+            <div class="card-inner">
+              <div class="card-front">
+                <h3>${card.nome}</h3>
+                <p>${card.descrizione}</p>
+                <p><b>Tipo:</b> ${Array.isArray(card.tipo) ? card.tipo.join(", ") : card.tipo}</p>
+                ${card.colore ? `<p><b>Colore:</b> ${card.colore}</p>` : ""}
+              </div>
+              <div class="card-back">
+                ${card.Espansione ? card.Espansione : "Set Base"}
+              </div>
+            </div>
+          `;
+
+          div.addEventListener("dragstart", e => {
+              e.dataTransfer.setData("text/plain", div.id);
+          });
+
+          container.appendChild(div);
+
+          setTimeout(() => {
+              div.classList.add("drop");
+              playSound("soundDrop");
+          }, idx * 1000);
+
+          setTimeout(() => {
+              div.classList.add("flip");
+              playSound("soundFlip");
+          }, 2000 + idx * 1000);
+      });
+  }
+  </script>
+</body>
+</html>
